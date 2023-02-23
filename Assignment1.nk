@@ -1,0 +1,141 @@
+#! C:/Program Files/Nuke14.0v2/nuke-14.0.2.dll -nx
+version 14.0 v2
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="-1" y="-9" w="1920" h="1001" maximized="1" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="787" stretch="1"/>
+            <splitter orientation="2">
+                <split size="563"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="396"/>
+                <dock id="" activePageId="DAG.1">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="1085"/>
+            <dock id="" activePageId="Properties.1" focus="true">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+                <page id="Scenegraph.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Assignment1.nk"
+ frame 49
+ first_frame 46
+ last_frame 50
+ lock_range true
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ monitorOutLUT rec709
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+Read {
+ inputs 0
+ file_type tiff
+ file "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Hula.#####.tiff"
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ first 46
+ last 50
+ origfirst 46
+ origlast 50
+ origset true
+ colorspace linear
+ name Read1
+ xpos -14
+ ypos -218
+}
+set N12fcd800 [stack 0]
+Expression {
+ expr0 "(r - 0.3217) *(r - 0.3217) /0.00193"
+ expr1 "(g-0.6276) * (g-0.6276)/0.00021"
+ expr2 "(b - 0.5150) * (b - 0.5150) / 0.000251"
+ name BackgroundEnergy
+ xpos -126
+ ypos -63
+}
+set N12fcd400 [stack 0]
+push $N12fcd400
+Expression {
+ expr0 "step(60, r + g + b)"
+ expr1 "step(60, r + g + b)"
+ expr2 "step(60, r + g + b)"
+ name Expression2
+ xpos -16
+ ypos 3
+}
+set N12fcdc00 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.blink"
+ recompileCount 7
+ ProgramGroup 1
+ KernelDescription "2 \"MAP\" iterate pixelWise a4ce19ed4931edb9a79940feac943448c3403883c1b76af9a997609bbea6ca96 3 \"src_benergy\" Read Point \"alpha\" Read Point \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessPoint, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessPoint, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n\n    SampleType(dst_alpha) sample(0.0f);\n    SampleType(src_benergy) input = src_benergy();\n    SampleType(alpha) ref_input = alpha();\n\n    // Calculate background energy E_1_0\n\n    // Set E_t = 60\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n\n    // E1 = E_1_1 + E_s1\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n    dst_alpha() = float4(1.0f,0.0f,1.0f,1.0f);\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP
+ selected true
+ xpos 252
+ ypos -18
+}
+push $N12fcdc00
+Read {
+ inputs 0
+ file_type tiff
+ file "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Hula.MLKey.  ##.tiff"
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ first 46
+ last 50
+ origfirst 46
+ origlast 50
+ origset true
+ name Read2
+ xpos 97
+ ypos -217
+}
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 5
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript1
+ xpos 57
+ ypos 85
+}
+push $N12fcdc00
+push $N12fcd800
+Viewer {
+ inputs 4
+ frame 49
+ frame_range 46-50
+ input_number 3
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -88
+ ypos 91
+}

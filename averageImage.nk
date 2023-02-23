@@ -1,0 +1,255 @@
+#! C:/Program Files/Nuke13.1v2/nuke-13.1.2.dll -nx
+version 13.1 v2
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="0" w="1917" h="1008" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1254" stretch="1"/>
+            <splitter orientation="2">
+                <split size="567"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="399"/>
+                <dock id="" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="615"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name C:/Users/radtkem/Desktop/averageImage.nk
+ frame 5
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ monitorOutLUT rec709
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode6
+ tile_color 0x71c67100
+ label "Validation Test"
+ note_font_size 42
+ selected true
+ xpos 511
+ ypos -280
+ bdwidth 331
+ bdheight 299
+}
+Read {
+ inputs 0
+ file_type png
+ file C:/Users/radtkem/Downloads/flamingo.png
+ format "640 471 0 0 640 471 1 "
+ origset true
+ name Read1
+ selected true
+ xpos -150
+ ypos -255
+}
+ColorWheel {
+ inputs 0
+ format "256 256 0 0 256 256 1 square_256"
+ gamma 0.45
+ name ColorWheel1
+ selected true
+ xpos -40
+ ypos -249
+}
+StickyNote {
+ inputs 0
+ name StickyNote5
+ label "The output must be green\nif the computation of the avg\nis correct for the golden image."
+ selected true
+ xpos 682
+ ypos -66
+}
+Read {
+ inputs 0
+ file_type exr
+ file C:/Users/radtkem/Downloads/goldenImage(1).exr
+ format "256 256 0 0 256 256 1 square_256"
+ origset true
+ name Read2
+ selected true
+ xpos 179
+ ypos -310
+}
+set Nbdab4c00 [stack 0]
+BlinkScript {
+ recompileCount 6
+ ProgramGroup 1
+ KernelDescription "2 \"AverageImageKernel\" iterate pixelWise 71312e1edd2538243f260e471ed20cc35fbfd99d2b06bcb47a00d844dda29c9a 2 \"src\" Read Random \"dst\" Write Point 1 \"Channel Index\" Int 1 AAAAAA== 1 \"channel\" 1 1 3 \"height\" Int 1 1 AAAAAA== \"width\" Int 1 1 AAAAAA== \"weight\" Float 1 1 AAAAAA=="
+ kernelSource "kernel AverageImageKernel : ImageComputationKernel<ePixelWise>\n\{\n  // Source image\n  // eRead: image is being read\n  // eAccessPoint, can only access this current pixel and not neighboring pixels\n  Image<eRead, eAccessRandom, eEdgeClamped> src;\n  //Output image\n  Image<eWrite> dst;\n\n  param:\n    int channel;\n  local:\n    int height;\n    int width;\n    float weight;\n  // Values to be used in all pixel processing, so do it in init function\n  void init() \{\n    height = 256;\n    width = 256;\n    weight = float(height * width);\n  \}\n\n  void define() \{\n      defineParam(channel, \"Channel Index\", 0);\n  \}\n\n  void process() \{\n    float sum = 0;\n    float val = 0;\n    for(int i = 0; i < height; i++) \{\n      for(int j = 0; j < width; j++) \{\n        float4 vec = src(j,i);\n        if(channel == 0) \{\n          val = vec.x;\n        \}\n        else if(channel == 1) \{\n          val = vec.y;\n        \}\n        else if(channel == 2) \{\n          val = vec.z;\n        \}\n        sum += val;\n      \}\n    \}\n    dst() = float4(sum/weight,sum/weight,sum/weight,1.0f);\n  \}\n\};"
+ rebuild ""
+ format "1 1 0 0 1 1 1 1x1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript2
+ selected true
+ xpos -60
+ ypos -84
+}
+push $Nbdab4c00
+BlinkScript {
+ recompileCount 7
+ ProgramGroup 1
+ KernelDescription "2 \"AverageImageKernel\" iterate pixelWise 71312e1edd2538243f260e471ed20cc35fbfd99d2b06bcb47a00d844dda29c9a 2 \"src\" Read Random \"dst\" Write Point 1 \"Channel Index\" Int 1 AAAAAA== 1 \"channel\" 1 1 3 \"height\" Int 1 1 AAAAAA== \"width\" Int 1 1 AAAAAA== \"weight\" Float 1 1 AAAAAA=="
+ kernelSource "kernel AverageImageKernel : ImageComputationKernel<ePixelWise>\n\{\n  // Source image\n  // eRead: image is being read\n  // eAccessPoint, can only access this current pixel and not neighboring pixels\n  Image<eRead, eAccessRandom, eEdgeClamped> src;\n  //Output image\n  Image<eWrite> dst;\n\n  param:\n    int channel;\n  local:\n    int height;\n    int width;\n    float weight;\n  // Values to be used in all pixel processing, so do it in init function\n  void init() \{\n    height = 256;\n    width = 256;\n    weight = float(height * width);\n  \}\n\n  void define() \{\n      defineParam(channel, \"Channel Index\", 0);\n  \}\n\n  void process() \{\n    float sum = 0;\n    float val = 0;\n    for(int i = 0; i < height; i++) \{\n      for(int j = 0; j < width; j++) \{\n        float4 vec = src(j,i);\n        if(channel == 0) \{\n          val = vec.x;\n        \}\n        else if(channel == 1) \{\n          val = vec.y;\n        \}\n        else if(channel == 2) \{\n          val = vec.z;\n        \}\n        sum += val;\n      \}\n    \}\n    dst() = float4(sum/weight,sum/weight,sum/weight,1.0f);\n  \}\n\};"
+ rebuild ""
+ "AverageImageKernel_Channel Index" 1
+ format "1 1 0 0 1 1 1 1x1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript3
+ selected true
+ xpos 102
+ ypos -95
+}
+MergeExpression {
+ inputs 2
+ expr0 Ar
+ expr1 Bg
+ expr2 0
+ expr3 0
+ name MergeExpression1
+ selected true
+ xpos -1
+ ypos 64
+}
+push $Nbdab4c00
+BlinkScript {
+ recompileCount 6
+ ProgramGroup 1
+ KernelDescription "2 \"AverageImageKernel\" iterate pixelWise 71312e1edd2538243f260e471ed20cc35fbfd99d2b06bcb47a00d844dda29c9a 2 \"src\" Read Random \"dst\" Write Point 1 \"Channel Index\" Int 1 AAAAAA== 1 \"channel\" 1 1 3 \"height\" Int 1 1 AAAAAA== \"width\" Int 1 1 AAAAAA== \"weight\" Float 1 1 AAAAAA=="
+ kernelSource "kernel AverageImageKernel : ImageComputationKernel<ePixelWise>\n\{\n  // Source image\n  // eRead: image is being read\n  // eAccessPoint, can only access this current pixel and not neighboring pixels\n  Image<eRead, eAccessRandom, eEdgeClamped> src;\n  //Output image\n  Image<eWrite> dst;\n\n  param:\n    int channel;\n  local:\n    int height;\n    int width;\n    float weight;\n  // Values to be used in all pixel processing, so do it in init function\n  void init() \{\n    height = 256;\n    width = 256;\n    weight = float(height * width);\n  \}\n\n  void define() \{\n      defineParam(channel, \"Channel Index\", 0);\n  \}\n\n  void process() \{\n    float sum = 0;\n    float val = 0;\n    for(int i = 0; i < height; i++) \{\n      for(int j = 0; j < width; j++) \{\n        float4 vec = src(j,i);\n        if(channel == 0) \{\n          val = vec.x;\n        \}\n        else if(channel == 1) \{\n          val = vec.y;\n        \}\n        else if(channel == 2) \{\n          val = vec.z;\n        \}\n        sum += val;\n      \}\n    \}\n    dst() = float4(sum/weight,sum/weight,sum/weight,1.0f);\n  \}\n\};"
+ rebuild ""
+ "AverageImageKernel_Channel Index" 2
+ format "1 1 0 0 1 1 1 1x1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript4
+ selected true
+ xpos 253
+ ypos -86
+}
+MergeExpression {
+ inputs 2
+ expr0 Ar
+ expr1 Ag
+ expr2 Bb
+ name MergeExpression2
+ selected true
+ xpos 134
+ ypos 164
+}
+set Na8162c00 [stack 0]
+push $Nbdab4c00
+BlinkScript {
+ recompileCount 50
+ ProgramGroup 1
+ KernelDescription "2 \"AverageImageKernel\" iterate componentWise c5d590446cc33975ee8ea28712b23d67df1972fde121a1984e0d3e14522b952e 2 \"src\" Read Random \"dst\" Write Point 0 0 2 \"height\" Int 1 1 AAAAAA== \"width\" Int 1 1 AAAAAA=="
+ kernelSource "kernel AverageImageKernel : ImageComputationKernel<eComponentWise>\n\{\n  // Source image\n  // eRead: image is being read\n  // eAccessPoint, can only access this current pixel and not neighboring pixels\n  Image<eRead, eAccessRandom, eEdgeClamped> src;\n  //Output image\n  Image<eWrite> dst;\n\n  param:\n  \n  local:\n    int height;\n    int width;\n  // Values to be used in all pixel processing, so do it in init function\n  void init() \{\n    height =256;\n    width = 256;\n  \}\n\n  void define() \{\n    \n  \}\n\n  void process(int2 pos) \{\n    float sum = 0;\n    \n    for(int i = 0; i < height; i++) \{\n      for(int j = 0; j < width; j++) \{\n        sum += src(j,i);\n      \}\n    \}\n\n    dst() = float(sum / float(height * width));\n  \}\n\};"
+ rebuild ""
+ format "1 1 0 0 1 1 1 1x1"
+ specifiedFormat true
+ rebuild_finalise ""
+ name BlinkScript1
+ selected true
+ xpos 324
+ ypos -220
+}
+Viewer {
+ inputs 2
+ frame 5
+ frame_range 1-100
+ input_number 1
+ colour_sample_bbox {-1 -1.0078125 1 0.9921875}
+ samplepoints {{-1.375 0.96875}
+   }
+ name Viewer1
+ selected true
+ xpos 419
+ ypos 81
+}
+push $Na8162c00
+Dot {
+ name Dot1
+ label Input
+ note_font_size 32
+ note_font_color 0xff
+ selected true
+ xpos 625
+ ypos -211
+}
+Reformat {
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ filter impulse
+ name Reformat1
+ selected true
+ xpos 591
+ ypos -173
+}
+Group {
+ name checkKernel3
+ selected true
+ xpos 591
+ ypos -128
+ addUserKnob {20 checkKernel}
+ addUserKnob {41 "Local GPU: " T BlinkScript4.gpuName}
+ addUserKnob {41 "Use GPU if Available" T BlinkScript4.useGPUIfAvailable}
+ addUserKnob {26 ""}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -3100
+  ypos 1252
+ }
+ BlinkScript {
+  recompileCount 9
+  ProgramGroup 1
+  KernelDescription "2 \"checkKernel\" iterate pixelWise dbcaedd53032862306cf846fe83d493b3192e011217662159f486e7e2c839bcf 2 \"src\" Read Point \"dst\" Write Point 0 0 1 \"mu\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA=="
+  EncodedSource "1 680 yUR59vt7auTe9yVDGsfV3gdB6/9C2Q3qLY3097Dq+fKe1vrBxSjwQPi6gfZ3u71AeisF6AxWoPmFUlXrpSfEVA4AUPPBmAweN+uTegETo1vzz9gWJY//SbojsyX8MzLqfLxTW0oxBf10rtZ4EXCz8HnjDzm3cVFznaWbB7iu6AuTzNvLj+HwRqP4LyXmbQBKxIuMnSlvAl9wTj9Rxcv8o+yO2fbrpUA7B2M4b60WBOSwbAuHeSx50qOtTVvnsFDEs41bBp78MFQ054f8lpoPPzmS0FUi1CDXV96uOsosAYWr0W1S56bHvvm0HJMks4MPb4LDNGprQJdI9RpCfjwGBs/ofnfa/pn+Wo5JKyP3BjBndyCRhABkh2N4UtP+4klpjQhQlJjcv2eB/ZnRGOc48iUspqgXbkNkzCNpW/OlByVH8tQVsFr5IdEYkGB8rpr46AN3nP7trK+x2R46xwsttpq0fAmiTEV+MRGzokDKOvLuIPHUBvznOcAk0d/DPThOoCvLTdrHl9P6lOrP5YTBVszh7m8YKtj8/ErMAMxOGqUhAmmuwBVggA3WZcW73+tUz13RTIMvTvwt5DHiq/rCzcyLO+CsSP416mr+bRmdiVJU0EkEWLw77NPl0G5z4a5SVEr/y1fRoOPdXEM0By4XjmlikcKLxAujzpgJr0MmwTB8gy8yzqO3Uu+qxcHH3qknemnrj0zSkWSV4d33NbHlQO1M6f8POCyHFAr6uW4xcHhW7hKw3Z3XvM/rAFXZw2DxaTVlGo6frHQZ+j9bCWPghIxrIA/LO6u7U4XidUfUnwv4k0wL/ZkHt/nvJVGaQOXjkeFrTwVU8aaTgy+arF5q2gOQEAFSXUXE0mdZoR5e8BMmLHd2Sf5dmKbblKHchJyPWNKDyd+w9veLVWxLIf9enQ=="
+  rebuild ""
+  protectKernelWhenPublishing true
+  rebuild_finalise ""
+  name BlinkScript4
+  xpos -3100
+  ypos 1292
+ }
+ Output {
+  name Output1
+  xpos -3100
+  ypos 1392
+ }
+end_group
+PostageStamp {
+ name PostageStamp1
+ selected true
+ xpos 591
+ ypos -85
+ postage_stamp true
+}
