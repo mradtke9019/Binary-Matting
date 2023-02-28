@@ -2,26 +2,26 @@
 version 14.0 v2
 define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 <layout version="1.0">
-    <window x="-1" y="-9" w="1920" h="1001" maximized="1" screen="0">
+    <window x="0" y="0" w="1917" h="991" screen="0">
         <splitter orientation="1">
             <split size="40"/>
             <dock id="" hideTitles="1" activePageId="Toolbar.1">
                 <page id="Toolbar.1"/>
             </dock>
-            <split size="787" stretch="1"/>
+            <split size="1254" stretch="1"/>
             <splitter orientation="2">
-                <split size="563"/>
+                <split size="557"/>
                 <dock id="" activePageId="Viewer.1">
                     <page id="Viewer.1"/>
                 </dock>
-                <split size="396"/>
-                <dock id="" activePageId="DAG.1">
+                <split size="392"/>
+                <dock id="" activePageId="DAG.1" focus="true">
                     <page id="DAG.1"/>
                     <page id="Curve Editor.1"/>
                     <page id="DopeSheet.1"/>
                 </dock>
             </splitter>
-            <split size="1085"/>
+            <split size="615"/>
             <dock id="" activePageId="Properties.1">
                 <page id="Properties.1"/>
                 <page id="uk.co.thefoundry.backgroundrenderview.1"/>
@@ -34,7 +34,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 Root {
  inputs 0
  name "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Assignment1.nk"
- frame 49
+ frame 47
  first_frame 46
  last_frame 50
  lock_range true
@@ -62,44 +62,27 @@ Read {
  origset true
  colorspace linear
  name Read1
- xpos -14
- ypos -218
+ xpos -140
+ ypos -230
 }
-set N12fcd800 [stack 0]
 Expression {
  expr0 "(r - 0.3217) *(r - 0.3217) /0.00193"
  expr1 "(g-0.6276) * (g-0.6276)/0.00021"
  expr2 "(b - 0.5150) * (b - 0.5150) / 0.000251"
  name BackgroundEnergy
- xpos -126
- ypos -63
+ xpos -140
+ ypos -134
 }
-set N12fcd400 [stack 0]
-push $N12fcd400
+set N6aead400 [stack 0]
 Expression {
  expr0 "step(60, r + g + b)"
  expr1 "step(60, r + g + b)"
  expr2 "step(60, r + g + b)"
- name Expression2
- xpos -16
- ypos 3
+ name Threshold
+ xpos -140
+ ypos -100
 }
-set N12fcdc00 [stack 0]
-BlinkScript {
- inputs 2
- kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.blink"
- recompileCount 14
- ProgramGroup 1
- KernelDescription "2 \"MAP\" iterate pixelWise 0ef6013d0abc3c71b55d5df97c297eb9ae3f728b865a709f1184a5a73cb6dc1b 3 \"src_benergy\" Read Point \"alpha\" Read Point \"dst_alpha\" Write Point 0 0 0"
- kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessPoint, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessPoint, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n\n    SampleType(dst_alpha) sample(0.0f);\n    SampleType(src_benergy) input = src_benergy();\n    SampleType(alpha) ref_input = alpha();\n\n    // Calculate background energy E_1_0\n    int x = pos.x;\n    int y = pos.y;\n\n    int zeroCount = 0;\n    int oneCount = 0;\n\n    for(int i = -1; i < 2; i++)\n    \{\n        for(int j = -1; < 2; j++)\n        \{\n            // Dont consider current pixel, only neighborhood\n            if(x + j == 0 && y + i == 0)\n            \{\n                continue;\n            \}\n\n        \}\n    \}\n\n    // Calculate 3x3 neighborhood of pixels that say what we should be. Use matte as prior\n\n\n    // Set E_t = 60\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n\n    // E1 = E_1_1 + E_s1\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n    dst_alpha() = float4(1.0f,0.0f,1.0f,1.0f);\n  \}\n\};\n"
- rebuild ""
- rebuild_finalise ""
- name MAP
- selected true
- xpos 259
- ypos -17
-}
-push $N12fcdc00
+set N6aeadc00 [stack 0]
 Read {
  inputs 0
  file_type tiff
@@ -111,31 +94,92 @@ Read {
  origlast 50
  origset true
  name Read2
- xpos 97
- ypos -217
+ xpos -311
+ ypos -224
 }
 BlinkScript {
  inputs 2
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
- recompileCount 6
+ recompileCount 8
  ProgramGroup 1
  KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
- kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessPoint, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessPoint, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n\n    SampleType(dst_alpha) sample(0.0f);\n    SampleType(src_benergy) input = src_benergy();\n    SampleType(alpha) ref_input = alpha();\n\n    // Calculate background energy E_1_0\n    int x = pos.x;\n    int y = pos.y;\n\n    int zeroCount = 0;\n    int oneCount = 0;\n\n    for(int i = -1; i < 2; i++)\n    \{\n        for(int j = -1; < 2; j++)\n        \{\n            // Dont consider current pixel, only neighborhood\n            if(x + j == 0 && y + i == 0)\n            \{\n                continue;\n            \}\n\n        \}\n    \}\n\n    // Calculate 3x3 neighborhood of pixels that say what we should be. Use matte as prior\n\n\n    // Set E_t = 60\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n\n    // E1 = E_1_1 + E_s1\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n    dst_alpha() = float4(1.0f,0.0f,1.0f,1.0f);\n  \}\n\};\n"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
  rebuild ""
  rebuild_finalise ""
  name BlinkScript1
- xpos 57
- ypos 85
+ xpos -360
+ ypos 54
 }
-push $N12fcdc00
-push $N12fcd800
+push $N6aeadc00
+push $N6aead400
+Dot {
+ name Dot1
+ xpos -11
+ ypos -131
+}
+set N32298000 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 70
+ KernelDescription "2 \"MAP\" iterate componentWise 048329c51f46e32431630b555cf38f2fd7a385409545814b904a92c3f8f238a4 3 \"src_benergy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<eComponentWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    \n    //SampleType(src_benergy) inputEnergy = src_benergy();\n    //SampleType(alpha) inputAlpha = alpha();\n\n    int x = pos.x;\n    int y = pos.y;\n\n    int E_s0 = 0;\n    int E_s1 = 0;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    // Use matte as prior\n\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            E_s1 +=1;\n        \}\n        else\{\n            E_s0 +=1;\n        \}\n      \}\n    \}\n\n    \n    // Calculate background energy E_1_0\n\n    // Set E_t = 60\n    float E_t = 60;\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n    float E0 = E_t + float(E_s0);\n\n    // E1 = E_1_1 + E_s1\n    float E1= src_benergy(pos.x,pos.y) + float(E_s1);\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n\n    if(E0 < E1)\n    \{\n      dst_alpha() = 0.0f;\n    \}\n    else \n    \{\n      dst_alpha() = 1.0f;\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP
+ selected true
+ xpos 57
+ ypos -140
+}
+set N32298400 [stack 0]
+push $N32298000
+Dot {
+ name Dot3
+ xpos -11
+ ypos -64
+}
+set N32298800 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 63
+ KernelDescription "2 \"MAP\" iterate componentWise 048329c51f46e32431630b555cf38f2fd7a385409545814b904a92c3f8f238a4 3 \"src_benergy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<eComponentWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    \n    //SampleType(src_benergy) inputEnergy = src_benergy();\n    //SampleType(alpha) inputAlpha = alpha();\n\n    int x = pos.x;\n    int y = pos.y;\n\n    int E_s0 = 0;\n    int E_s1 = 0;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    // Use matte as prior\n\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            E_s1 +=1;\n        \}\n        else\{\n            E_s0 +=1;\n        \}\n      \}\n    \}\n\n    \n    // Calculate background energy E_1_0\n\n    // Set E_t = 60\n    float E_t = 60;\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n    float E0 = E_t + float(E_s0);\n\n    // E1 = E_1_1 + E_s1\n    float E1= src_benergy(pos.x,pos.y) + float(E_s1);\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n\n    if(E0 < E1)\n    \{\n      dst_alpha() = 0.0f;\n    \}\n    else \n    \{\n      dst_alpha() = 1.0f;\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP1
+ xpos 57
+ ypos -73
+}
+set N32298c00 [stack 0]
+push $N32298800
+Dot {
+ name Dot2
+ xpos -11
+ ypos 2
+}
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 63
+ KernelDescription "2 \"MAP\" iterate componentWise 048329c51f46e32431630b555cf38f2fd7a385409545814b904a92c3f8f238a4 3 \"src_benergy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<eComponentWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> src_benergy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    \n    //SampleType(src_benergy) inputEnergy = src_benergy();\n    //SampleType(alpha) inputAlpha = alpha();\n\n    int x = pos.x;\n    int y = pos.y;\n\n    int E_s0 = 0;\n    int E_s1 = 0;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    // Use matte as prior\n\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            E_s1 +=1;\n        \}\n        else\{\n            E_s0 +=1;\n        \}\n      \}\n    \}\n\n    \n    // Calculate background energy E_1_0\n\n    // Set E_t = 60\n    float E_t = 60;\n\n    // Calculate E_s0 Spatial energy alpha = 0\n\n    // Calculate E_s1 Spatial energy alpha = 1\n\n    // E0 = E_1_0 + E_s0\n    float E0 = E_t + float(E_s0);\n\n    // E1 = E_1_1 + E_s1\n    float E1= src_benergy(pos.x,pos.y) + float(E_s1);\n\n    // If E0 < E1, output 0\n    // If E1 < E0, outout 1\n\n    // Write the result to the output image\n\n    if(E0 < E1)\n    \{\n      dst_alpha() = 0.0f;\n    \}\n    else \n    \{\n      dst_alpha() = 1.0f;\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP2
+ xpos 57
+ ypos -10
+}
+push $N32298c00
+push $N32298400
+push $N6aeadc00
 Viewer {
  inputs 4
- frame 49
+ frame 47
  frame_range 46-50
  input_number 3
  monitorOutOutputTransform rec709
  name Viewer1
- xpos -88
- ypos 91
+ xpos -140
+ ypos 60
 }

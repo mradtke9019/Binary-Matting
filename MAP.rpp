@@ -1,0 +1,74 @@
+
+kernel MAP : ImageComputationKernel<eComponentWise>
+{
+
+  Image<eRead, eAccessRandom, eEdgeClamped> src_benergy; // the input background energy 
+  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image
+
+
+  Image<eWrite> dst_alpha; // the output alpha
+
+
+  void process(int2 pos) {
+    
+    //SampleType(src_benergy) inputEnergy = src_benergy();
+    //SampleType(alpha) inputAlpha = alpha();
+
+    int x = pos.x;
+    int y = pos.y;
+
+    int E_s0 = 0;
+    int E_s1 = 0;
+    
+    // Calculate 3x3 neighborhood of pixels that say what we should be.
+    // Use matte as prior
+
+    for(int i = -1; i < 2; i++) {
+      for(int j = -1; j < 2; j++) {
+        if(i == 0 && j == 0)
+        {
+          continue;
+        }
+        float4 vec = alpha(j + x,i + y);
+        // Since its a white or black pixel, accessing one of the color channels is sufficient to determine if 
+        // foreground or background
+        if(vec.x == 1 || vec.y == 1 || vec.z == 1) {
+            E_s1 +=1;
+        }
+        else{
+            E_s0 +=1;
+        }
+      }
+    }
+
+    
+    // Calculate background energy E_1_0
+
+    // Set E_t = 60
+    float E_t = 60;
+
+    // Calculate E_s0 Spatial energy alpha = 0
+
+    // Calculate E_s1 Spatial energy alpha = 1
+
+    // E0 = E_1_0 + E_s0
+    float E0 = E_t + float(E_s0);
+
+    // E1 = E_1_1 + E_s1
+    float E1= src_benergy(pos.x,pos.y) + float(E_s1);
+
+    // If E0 < E1, output 0
+    // If E1 < E0, outout 1
+
+    // Write the result to the output image
+
+    if(E0 < E1)
+    {
+      dst_alpha() = 0.0f;
+    }
+    else 
+    {
+      dst_alpha() = 1.0f;
+    }
+  }
+};
