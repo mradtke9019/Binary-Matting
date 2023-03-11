@@ -1,0 +1,69 @@
+
+kernel MAP : ImageComputationKernel<ePixelWise>
+{
+
+  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy 
+  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image
+  Image<eRead, eAccessRandom, eEdgeClamped> previousAlpha; // the referenced image
+
+
+  Image<eWrite> dst_alpha; // the output alpha
+
+
+  void process(int2 pos) {
+    int x = pos.x;
+    int y = pos.y;
+
+    int numZeros = 0;
+    int numOnes = 0;
+    float lambda = 20.0f;
+    
+    // Calculate 3x3 neighborhood of pixels that say what we should be.
+    for(int i = -1; i < 2; i++) {
+      for(int j = -1; j < 2; j++) {
+        if(i == 0 && j == 0)
+        {
+          continue;
+        }
+        float4 vec = alpha(j + x,i + y);
+        // Since its a white or black pixel, accessing one of the color channels 
+        // is sufficient to determine if 
+        // foreground or background
+        if(vec.x == 1 || vec.y == 1 || vec.z == 1) {
+            numOnes +=1;
+        }
+        else{
+            numZeros +=1;
+        }
+      }
+    }
+
+    // Calculate 3x3 values of previous frame. Same code as before
+    for(int i = -1; i < 2; i++) {
+      for(int j = -1; j < 2; j++) {
+        float4 vec = previousAlpha(j + x,i + y);
+        if(vec.x == 1 || vec.y == 1 || vec.z == 1) {
+            numOnes +=1;
+        }
+        else{
+            numZeros +=1;
+        }
+      }
+    }
+
+    float E_t = 60;
+
+    float E0 = E_t + lambda * float(numZeros);
+
+    float E1 = energy(x,y).x + lambda * float(numOnes);
+
+    if(E0 > E1)
+    {
+      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);
+    }
+    else 
+    {
+      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);
+    }
+  }
+};
