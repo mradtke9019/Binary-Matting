@@ -1,31 +1,30 @@
-#! C:/Program Files/Nuke14.0v2/nuke-14.0.2.dll -nx
-version 14.0 v2
+#! C:/Program Files/Nuke14.0v3/nuke-14.0.3.dll -nx
+version 14.0 v3
 define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 <layout version="1.0">
-    <window x="0" y="0" w="1917" h="991" screen="0">
+    <window x="960" y="0" w="958" h="1008" screen="0">
         <splitter orientation="1">
             <split size="40"/>
             <dock id="" hideTitles="1" activePageId="Toolbar.1">
                 <page id="Toolbar.1"/>
             </dock>
-            <split size="1254" stretch="1"/>
+            <split size="492" stretch="1"/>
             <splitter orientation="2">
-                <split size="557"/>
+                <split size="567"/>
                 <dock id="" activePageId="Viewer.1">
                     <page id="Viewer.1"/>
                 </dock>
-                <split size="392"/>
-                <dock id="" activePageId="DAG.1" focus="true">
+                <split size="399"/>
+                <dock id="" activePageId="DAG.1">
                     <page id="DAG.1"/>
                     <page id="Curve Editor.1"/>
                     <page id="DopeSheet.1"/>
                 </dock>
             </splitter>
-            <split size="615"/>
-            <dock id="" activePageId="Properties.1">
+            <split size="418"/>
+            <dock id="" activePageId="Pixel Analyzer.1">
                 <page id="Properties.1"/>
-                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
-                <page id="Scenegraph.1"/>
+                <page id="Pixel Analyzer.1"/>
             </dock>
         </splitter>
     </window>
@@ -33,8 +32,8 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 }
 Root {
  inputs 0
- name "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Assignment1.nk"
- frame 50
+ name C:/Users/mradt/Documents/Trinity/Binary-Matting/Assignment1.nk
+ frame 47
  first_frame 46
  last_frame 50
  lock_range true
@@ -65,7 +64,7 @@ BackdropNode {
  name MRF_3D
  tile_color 0xc68824ff
  note_font_size 42
- xpos 162
+ xpos 160
  ypos -354
  bdwidth 392
  bdheight 386
@@ -73,7 +72,7 @@ BackdropNode {
 Read {
  inputs 0
  file_type tiff
- file "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Hula.#####.tiff"
+ file C:/Users/mradt/Documents/Trinity/Binary-Matting/Hula.#####.tiff
  format "2048 1080 0 0 2048 1080 1 2K_DCP"
  first 46
  last 50
@@ -85,7 +84,7 @@ Read {
  xpos -140
  ypos -313
 }
-set Nbe8a0000 [stack 0]
+set N7000dc00 [stack 0]
 Expression {
  expr0 "(r - 0.3217) *(r - 0.3217) /0.00193"
  expr1 "(g-0.6276) * (g-0.6276)/0.00021"
@@ -102,10 +101,10 @@ Expression {
  xpos -140
  ypos -134
 }
-set Nbe8a0800 [stack 0]
+set N60a64400 [stack 0]
 Expression {
  temp_name0 threshold
- temp_expr0 60
+ temp_expr0 50
  expr0 "step(threshold, r)"
  expr1 "step(threshold, r)"
  expr2 "step(threshold, r)"
@@ -113,104 +112,11 @@ Expression {
  xpos -140
  ypos -88
 }
-set Nbe8a0c00 [stack 0]
-Dot {
- name Dot7
- xpos -30
- ypos -85
-}
-set N88dc8000 [stack 0]
-push $Nbe8a0800
-Dot {
- name Dot1
- xpos -11
- ypos -131
-}
-set Nbe8a1000 [stack 0]
-BlinkScript {
- inputs 2
- kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
- recompileCount 98
- KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
- kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
- rebuild ""
- rebuild_finalise ""
- name MAP
- xpos 57
- ypos -140
-}
-set Nbe8a1400 [stack 0]
-push $Nbe8a1000
-Dot {
- name Dot3
- xpos -11
- ypos -64
-}
-set Nbe8a1800 [stack 0]
-BlinkScript {
- inputs 2
- kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
- recompileCount 79
- KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
- kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
- rebuild ""
- rebuild_finalise ""
- name MAP1
- xpos 57
- ypos -78
-}
-set Nbe8a1c00 [stack 0]
-push $Nbe8a1800
-Dot {
- name Dot2
- xpos -11
- ypos 2
-}
-BlinkScript {
- inputs 2
- kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
- recompileCount 77
- KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
- kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
- rebuild ""
- rebuild_finalise ""
- name MAP2
- xpos 57
- ypos -10
-}
-set Nbe8ec400 [stack 0]
+set N60a64800 [stack 0]
 Read {
  inputs 0
  file_type tiff
- file "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Hula.MLKey.  ##.tiff"
- format "2048 1080 0 0 2048 1080 1 2K_DCP"
- first 46
- last 50
- origfirst 46
- origlast 50
- origset true
- name Read3
- xpos -477
- ypos -152
-}
-BlinkScript {
- inputs 2
- kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
- recompileCount 8
- ProgramGroup 1
- KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
- kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
- rebuild ""
- rebuild_finalise ""
- name BlinkScript2
- xpos -437
- ypos 58
-}
-push $Nbe8a0c00
-Read {
- inputs 0
- file_type tiff
- file "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/Hula.MLKey.  ##.tiff"
+ file "C:/Users/mradt/Documents/Trinity/Binary-Matting/Hula.MLKey.  ##.tiff"
  format "2048 1080 0 0 2048 1080 1 2K_DCP"
  first 46
  last 50
@@ -234,37 +140,137 @@ BlinkScript {
  xpos -293
  ypos -94
 }
-push $Nbe8a0000
+push $N60a64800
+Dot {
+ name Dot7
+ xpos -30
+ ypos -85
+}
+set N60a64c00 [stack 0]
+push $N60a64400
+Dot {
+ name Dot1
+ xpos -11
+ ypos -131
+}
+set N60a65000 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 98
+ KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP
+ xpos 57
+ ypos -140
+}
+set N60a65400 [stack 0]
+push $N60a65000
+Dot {
+ name Dot3
+ xpos -11
+ ypos -64
+}
+set N60a65800 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 79
+ KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP1
+ xpos 57
+ ypos -78
+}
+set N60a65c00 [stack 0]
+push $N60a65800
+Dot {
+ name Dot2
+ xpos -11
+ ypos 2
+}
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
+ recompileCount 77
+ KernelDescription "2 \"MAP\" iterate pixelWise fd48645e1b4de5817c41d4e9dd78ad326a3255f342c03d4c0999d062c53eaedc 3 \"energy\" Read Random \"alpha\" Read Random \"dst_alpha\" Write Point 0 0 0"
+ kernelSource "\nkernel MAP : ImageComputationKernel<ePixelWise>\n\{\n\n  Image<eRead, eAccessRandom, eEdgeClamped> energy; // the input background energy \n  Image<eRead, eAccessRandom, eEdgeClamped> alpha; // the referenced image\n\n\n  Image<eWrite> dst_alpha; // the output alpha\n\n\n  void process(int2 pos) \{\n    int x = pos.x;\n    int y = pos.y;\n\n    int numZeros = 0;\n    int numOnes = 0;\n    float lambda = 20.0f;\n    \n    // Calculate 3x3 neighborhood of pixels that say what we should be.\n    for(int i = -1; i < 2; i++) \{\n      for(int j = -1; j < 2; j++) \{\n        if(i == 0 && j == 0)\n        \{\n          continue;\n        \}\n        float4 vec = alpha(j + x,i + y);\n        // Since its a white or black pixel, accessing one of the color channels \n        // is sufficient to determine if \n        // foreground or background\n        if(vec.x == 1 || vec.y == 1 || vec.z == 1) \{\n            numOnes +=1;\n        \}\n        else\{\n            numZeros +=1;\n        \}\n      \}\n    \}\n\n    float E_t = 60;\n\n    float E0 = E_t + lambda * float(numZeros);\n\n    float E1 = energy(x,y).x + lambda * float(numOnes);\n\n    if(E0 > E1)\n    \{\n      dst_alpha() = float4(0.0f,0.0f,0.0f,1.0f);\n    \}\n    else \n    \{\n      dst_alpha() = float4(1.0f,1.0f,1.0f,1.0f);\n    \}\n  \}\n\};\n"
+ rebuild ""
+ rebuild_finalise ""
+ name MAP2
+ xpos 57
+ ypos -10
+}
+set N60b4e400 [stack 0]
+Read {
+ inputs 0
+ file_type tiff
+ file "C:/Users/mradt/Documents/Trinity/Binary-Matting/Hula.MLKey.  ##.tiff"
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ first 46
+ last 50
+ origfirst 46
+ origlast 50
+ origset true
+ name Read3
+ xpos -477
+ ypos -152
+}
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript2
+ xpos -437
+ ypos 58
+}
+push $N60a65c00
+Read {
+ inputs 0
+ file_type png
+ file C:/Users/mradt/Documents/Trinity/Binary-Matting/Hula.Fore.ACKGT.00047.png
+ format "2048 1080 0 0 2048 1080 1 2K_DCP"
+ origset true
+ name Read6
+ xpos -549
+ ypos 166
+}
+set Nb625f800 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript4
+ xpos -254
+ ypos 164
+}
+push $Nb625f800
+push $N7000dc00
 Dot {
  name Dot6
- xpos 206
+ xpos 204
  ypos -274
 }
-set Nbe8ed000 [stack 0]
-Dot {
- name Dot4
- xpos 502
- ypos -274
-}
-Dot {
- name Dot5
- xpos 729
- ypos -274
-}
-set Nbe8ed800 [stack 0]
-TimeOffset {
- time_offset 1
- time ""
- name TimeOffset1
- xpos 695
- ypos -227
-}
-push $Nbe8ed000
+set N60b4f800 [stack 0]
 TimeOffset {
  time_offset 1
  time ""
  name PreviousFrame
- xpos 172
+ xpos 170
  ypos -213
 }
 Expression {
@@ -272,7 +278,7 @@ Expression {
  expr1 "(g-0.6276) * (g-0.6276)/0.00021"
  expr2 "(b - 0.5150) * (b - 0.5150) / 0.000251"
  name PreviousBE
- xpos 172
+ xpos 170
  ypos -189
 }
 Expression {
@@ -280,27 +286,27 @@ Expression {
  expr1 "r + g + b"
  expr2 "r + g + b"
  name PreviousBESum
- xpos 172
+ xpos 170
  ypos -165
 }
-set N82f13000 [stack 0]
+set N61058800 [stack 0]
 Expression {
  temp_name0 threshold
- temp_expr0 60
+ temp_expr0 50
  expr0 "step(threshold, r)"
  expr1 "step(threshold, r)"
  expr2 "step(threshold, r)"
  name PreviousThreshold
- xpos 172
+ xpos 170
  ypos -92
 }
-push $N82f13000
+push $N61058800
 Dot {
  name Dot16
- xpos 282
+ xpos 280
  ypos -162
 }
-set N47915000 [stack 0]
+set N61059000 [stack 0]
 BlinkScript {
  inputs 2
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
@@ -310,10 +316,26 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name PreviousAlpha
- xpos 296
+ xpos 294
  ypos -212
 }
-push $N47915000
+set N61059400 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript6
+ xpos -254
+ ypos 305
+}
+push $Nb625f800
+push $N61059400
+push $N61059000
 BlinkScript {
  inputs 2
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
@@ -323,10 +345,25 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name PreviousAlpha1
- xpos 296
+ xpos 294
  ypos -162
 }
-push $N47915000
+set N61059800 [stack 0]
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript7
+ xpos -249
+ ypos 362
+}
+push $N61059800
+push $N61059000
 BlinkScript {
  inputs 2
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP.rpp"
@@ -336,24 +373,58 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name PreviousAlpha2
- xpos 296
+ xpos 294
  ypos -113
 }
-set N47915400 [stack 0]
+set N61059c00 [stack 0]
+push $Nb625f800
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript8
+ xpos -251
+ ypos 432
+}
+push $N60b4f800
+Dot {
+ name Dot4
+ xpos 500
+ ypos -274
+}
+Dot {
+ name Dot5
+ xpos 729
+ ypos -274
+}
+set N61058000 [stack 0]
+TimeOffset {
+ time_offset 1
+ time ""
+ name TimeOffset1
+ xpos 695
+ ypos -227
+}
+push $N61059c00
 Dot {
  name Dot14
- xpos 330
+ xpos 328
  ypos -72
 }
-set N47914400 [stack 0]
+set N6087e000 [stack 0]
 Dot {
  name Dot13
- xpos 330
+ xpos 328
  ypos 1
 }
-push $N47914400
-push $N47915400
-push $N88dc8000
+push $N6087e000
+push $N61059c00
+push $N60a64c00
 Dot {
  name Dot10
  xpos -30
@@ -361,10 +432,10 @@ Dot {
 }
 Dot {
  name Dot11
- xpos 498
+ xpos 496
  ypos -231
 }
-push $Nbe8a1000
+push $N60a65000
 Dot {
  name Dot8
  xpos -11
@@ -372,10 +443,10 @@ Dot {
 }
 Dot {
  name Dot9
- xpos 441
+ xpos 439
  ypos -249
 }
-set N88dc8800 [stack 0]
+set N6087f400 [stack 0]
 BlinkScript {
  inputs 3
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP3D.rpp"
@@ -386,17 +457,17 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name MAP3D
- xpos 464
+ xpos 462
  ypos -171
 }
-set N82e85400 [stack 0]
-push $N88dc8800
+set N6087f800 [stack 0]
+push $N6087f400
 Dot {
  name Dot12
- xpos 441
+ xpos 439
  ypos -131
 }
-set N88dc9800 [stack 0]
+set N6087fc00 [stack 0]
 BlinkScript {
  inputs 3
  kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/MAP3D.rpp"
@@ -407,14 +478,14 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name MAP3D1
- xpos 464
+ xpos 462
  ypos -81
 }
-set N88dc9c00 [stack 0]
-push $N88dc9800
+set N6089c000 [stack 0]
+push $N6087fc00
 Dot {
  name Dot15
- xpos 441
+ xpos 439
  ypos -30
 }
 BlinkScript {
@@ -427,11 +498,11 @@ BlinkScript {
  rebuild ""
  rebuild_finalise ""
  name MAP3D2
- xpos 464
+ xpos 462
  ypos -8
 }
-set N88dc9400 [stack 0]
-push $Nbe8ed800
+set N6089c800 [stack 0]
+push $N61058000
 VectorGenerator {
  inputs 2
  Advanced 1
@@ -457,21 +528,50 @@ IDistort {
  filter Simon
  name IDistort1
  xpos 862
- ypos -190
+ ypos -191
 }
-push $N88dc9400
-push $N88dc9400
-push $N88dc9c00
-push $N82e85400
-push $Nbe8ec400
-push $Nbe8a1c00
-push $Nbe8a1400
+push $N6089c800
+push $N6089c800
+push $N6089c000
+push $N6087f800
+push $Nb625f800
+push $N60b4e400
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript5
+ xpos -261
+ ypos 208
+}
+push $N60b4e400
+push $N60a65400
+push $Nb625f800
+BlinkScript {
+ inputs 2
+ kernelSourceFile "C:/Users/Matt/Documents/Trinity/Motion Picture Engineering/Assignment 1/EqualsTo.blink"
+ recompileCount 8
+ ProgramGroup 1
+ KernelDescription "2 \"EqualsTo\" iterate pixelWise bcd1be60cea15d2194548ece8f665c5b1fc4d609d87773aaf7743543845fc1e4 3 \"src\" Read Point \"ref\" Read Point \"dst\" Write Point 0 0 0"
+ kernelSource "kernel EqualsTo: ImageComputationKernel<ePixelWise> \{\n  Image<eRead, eAccessPoint, eEdgeClamped> src; // the input image (binary)\n  Image<eRead, eAccessPoint, eEdgeClamped> ref; // the reference image\n  // Checks if differences between two images is more than 1e6\n  // If it is .. that pel is coloured RED, otherwise its GREEN\n\n  Image<eWrite> dst; // the output image\n  \n  // pos gives the position of the kernel in the output image\n  void process(int2 pos) \{\n    SampleType(dst) sample(0.0f);\n    SampleType(src) input = src();\n    SampleType(ref) ref_input = ref();\n    float error = fabs(input.x - ref_input.x);\n                   + fabs(input.y - ref_input.y)\n                   + fabs(input.z - ref_input.z);\n    if (error >0.000001)\n      sample.x = 1.0f;\n    else\n      sample.y = 1.0f;\n\n    dst() = sample;\n  \}\n\};"
+ rebuild ""
+ rebuild_finalise ""
+ name BlinkScript3
+ xpos -252
+ ypos 111
+}
 Viewer {
  inputs 8
+ frame 47
  frame_range 46-50
- input_number 7
  monitorOutOutputTransform rec709
  name Viewer1
+ selected true
  xpos 352
  ypos 201
 }

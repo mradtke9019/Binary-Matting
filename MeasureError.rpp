@@ -1,0 +1,42 @@
+
+kernel MAP : ImageComputationKernel<ePixelWise>
+{
+
+  Image<eRead, eAccessRandom, eEdgeClamped> groundTruth; 
+  Image<eRead, eAccessRandom, eEdgeClamped> test;
+
+
+  Image<eWrite> output; // the output alpha
+
+  void process(int2 pos) {
+    
+    int height =1080;
+    int width = 2048;
+
+    int correct = 0;
+    int incorrect = 0;
+
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            float4 gT = groundTruth(j,i);
+            float4 t = test(j,i);
+
+            if(gT.x == t.x)
+            {
+                correct++;
+            }
+            else
+            {
+                incorrect++;
+            }
+        }
+    }
+
+    float ratio = correct / (incorrect + correct);
+
+    output() = float4(ratio,ratio,ratio,1.0f);
+    
+  }
+};
